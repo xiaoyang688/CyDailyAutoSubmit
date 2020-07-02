@@ -1,0 +1,30 @@
+server:
+  port: 8080
+spring:
+  profiles:
+    active: dev
+  mail:
+    host: smtp.qq.com
+    username: xxxxx@qq.com  #发送方的邮箱
+    password: xxxxxxx  # 设置密码，该处的密码是发送方QQ邮箱开启SMTP的授权码而非QQ密码
+
+#LOGIN_API: http://authserver.yibinu.edu.cn/authserver/login?service=http%3A%2F%2Fehall.yibinu.edu.cn%2Flogin%3Fservice%3Dhttp%3A%2F%2Fehall.yibinu.edu.cn%2Fnew%2Findex.html
+LOGIN_API: https://thxy.campusphere.net/iap/
+
+# 是否需要验证码接口，连续三次输错密码智慧校园将会要求输入验证码，防君子不防小人
+NEEDCAPTCHA_API:
+# 获取验证码接口
+CAPTCHA_API: https://thxy.campusphere.net/iap/generateCaptcha
+# 获取未填写表单数据
+COLLECTING_PROCESSING: https://thxy.campusphere.net/wec-counselor-collector-apps/stu/collector/queryCollectorProcessingList
+# 获取表单基本信息
+DETAIL_COLLECTOR: https://thxy.campusphere.net/wec-counselor-collector-apps/stu/collector/detailCollector
+# 获取表单字段
+FROM_FIELD: https://thxy.campusphere.net/wec-counselor-collector-apps/stu/collector/getFormFields
+# 提交表单
+SUBMIT_FROM: https://thxy.campusphere.net/wec-counselor-collector-apps/stu/collector/submitForm
+
+# 学号
+USERNAME: xxxxx
+# 密码
+PASSWORD: xxxxx
