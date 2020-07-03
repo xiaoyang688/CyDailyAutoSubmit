@@ -13,7 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>wisedu-unified-login-api</name>
 <!--    <packaging>war</packaging>-->
-    <!--    <packaging>jar</packaging>-->
+        <packaging>jar</packaging>
     <description>wisedu-unified-login-api project for Spring Boot</description>
 
     <properties>
@@ -100,7 +100,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}-v1.0</finalName>
+        <finalName>CyDailyAutoSubmit</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -108,5 +108,6 @@
             </plugin>
         </plugins>
     </build>
+
 
 </project>

@@ -2,14 +2,12 @@ package wiki.zimo.wiseduunifiedloginapi.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import wiki.zimo.wiseduunifiedloginapi.service.AutoSubmitService;
 import wiki.zimo.wiseduunifiedloginapi.service.LoginService;
 import wiki.zimo.wiseduunifiedloginapi.service.SendEmailService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -47,16 +45,27 @@ public class ApiController {
 
     }
 
-    @GetMapping("/test")
-    public Map<String, String>  test() {
+    @GetMapping("/autoSubmit")
+    public String autoSubmit() {
+
         Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo();
-        String formWid = formBaseInfo.get("formWid");
-        String collectorWid = formBaseInfo.get("wid");
-        String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid);
-        JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid);
-        Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField);
-        String status = sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", map.get("message"));
-        return map;
+        if (formBaseInfo == null) {
+            sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", "打卡失败！请您到今日校园app手动打卡~");
+            return "FAIL";
+        }
+        try {
+            String formWid = formBaseInfo.get("formWid");
+            String collectorWid = formBaseInfo.get("wid");
+            String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid);
+            JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid);
+            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField);
+            sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", map.get("message"));
+            return "SUCCESS";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "FAIL";
+        }
+
     }
 
 }

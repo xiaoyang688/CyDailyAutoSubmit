@@ -7,8 +7,20 @@ spring:
     host: smtp.qq.com
     username: cydaily@qq.com  #发送方的邮箱
     password: ydsudmeelrggebbj  # 设置密码，该处的密码是发送方QQ邮箱开启SMTP的授权码而非QQ密码
-
-# CAS登录接口
+    port: 587
+    properties:
+      mail:
+        stamp:
+          ssl:
+            trust: smtp.qq.com
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          socketFactory:
+            port: 587
+            class: javax.net.ssl.SSLSocketFactory
+  # CAS登录接口
 LOGIN_API: https://thxy.campusphere.net/iap/
 # 是否需要验证码接口，连续三次输错密码智慧校园将会要求输入验证码，防君子不防小人
 NEEDCAPTCHA_API:
@@ -23,9 +35,10 @@ FROM_FIELD: https://thxy.campusphere.net/wec-counselor-collector-apps/stu/collec
 # 提交表单
 SUBMIT_FROM: https://thxy.campusphere.net/wec-counselor-collector-apps/stu/collector/submitForm
 
+# ====================================================用户必填项===============================================================
 # 学号
-USERNAME: xxxxx
+USERNAME: 20170407430311
 # 密码
-PASSWORD: xxxxx
+PASSWORD: qaz520123
 # 邮箱通知
-EMAIL: xxxxx@qq.com
+EMAIL: 1501214688@qq.com

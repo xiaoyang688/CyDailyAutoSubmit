@@ -66,6 +66,9 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             JSONObject jsonObject = JSON.parseObject(resp);
             if ("SUCCESS".equals(jsonObject.getString("message"))) {
                 JSONArray jsonArray = jsonObject.getJSONObject("datas").getJSONArray("rows");
+                if (jsonArray.size() == 0) {
+                    return null;
+                }
                 JSONObject row = jsonArray.getJSONObject(0);
                 String wid = row.getString("wid");
                 String formWid = row.getString("formWid");
@@ -160,6 +163,12 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
         return null;
     }
 
+    @Override
+    public String autoSubmit(String username, String password, String email) {
+        //TODO
+        return null;
+    }
+
     /**
      * 处理提交表单数据
      *
@@ -221,6 +230,31 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     }
 
     /**
+     * 获取最新cookie
+     *
+     * @param username
+     * @param password
+     * @return
+     */
+    private String getCookie(String username, String password) {
+        Map<String, String> cookieMap = null;
+        String cookie = null;
+        try {
+            String cookieCache = LocalCache.get("cookie");
+            if (cookieCache != null) {
+                cookie = cookieCache;
+            } else {
+                cookieMap = loginService.login(username, password);
+                LocalCache.put("cookie", cookieMap.get("cookies"), 60);
+                cookie = LocalCache.get("cookie");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cookie;
+    }
+
+    /**
      * 模拟请求
      *
      * @param url
@@ -229,21 +263,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
      */
     private Response getResponse(String url, String json) {
 
-        Map<String, String> cookieMap = null;
-        String cookie = null;
-        try {
-            String cookieCache = LocalCache.get("cookie");
-            if (cookieCache != null) {
-                cookie = cookieCache;
-            } else {
-                cookieMap = loginService.login(USERNAME, PASSWORD);
-                LocalCache.put("cookie", cookieMap.get("cookies"), 60);
-                cookie = LocalCache.get("cookie");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        String cookie = getCookie(USERNAME, PASSWORD);
         System.out.println(cookie);
 
         RequestBody body = RequestBody.create(json, MEDIA_TYPE);

@@ -28,7 +28,7 @@ public class AutoSubmitTask {
     @Value("${EMAIL}")
     private String EMAIL;
 
-    @Scheduled(cron = "0 0 6 * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
     public void autoSubmitTask() {
         try {
             Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo();
@@ -42,7 +42,7 @@ public class AutoSubmitTask {
             e.printStackTrace();
             sendEmailService.send("cydaily@qq.com", EMAIL, "【今日校园打卡情况通知】", "打卡失败！请您到今日校园app手动打卡~");
         }
-
     }
+
 
 }

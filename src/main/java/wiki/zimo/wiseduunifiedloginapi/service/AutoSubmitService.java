@@ -42,4 +42,13 @@ public interface AutoSubmitService {
      * @return
      */
     public Map<String, String> submitForm(String formWid, String collectWid, String address, String schoolTaskWid, JSONArray formField);
+
+    /**
+     * 自动提交接口
+     * @param username
+     * @param password
+     * @param email
+     * @return
+     */
+    public String autoSubmit(String username, String password, String email);
 }
