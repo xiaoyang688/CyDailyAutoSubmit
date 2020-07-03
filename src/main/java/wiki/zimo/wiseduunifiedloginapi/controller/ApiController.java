@@ -10,7 +10,6 @@ import wiki.zimo.wiseduunifiedloginapi.service.AutoSubmitService;
 import wiki.zimo.wiseduunifiedloginapi.service.LoginService;
 import wiki.zimo.wiseduunifiedloginapi.service.SendEmailService;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -43,7 +42,7 @@ public class ApiController {
     @GetMapping("/sendEmail")
     public String sendMail() {
 
-        String status = sendEmailService.send("1501214688@qq.com", "1501214688@qq.com", "Hello World", "Test");
+        String status = sendEmailService.send("cydaily@qq.com", "18024088480@163.com", "Hello World", "66666");
         return status;
 
     }
@@ -56,6 +55,7 @@ public class ApiController {
         String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid);
         JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid);
         Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField);
+        String status = sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", map.get("message"));
         return map;
     }
 

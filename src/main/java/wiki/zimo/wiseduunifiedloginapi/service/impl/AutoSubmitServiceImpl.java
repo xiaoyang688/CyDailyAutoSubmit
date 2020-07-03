@@ -151,8 +151,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             if ("SUCCESS".equals(message)) {
                 resultMap.put("message", "自动打卡成功");
             } else {
-                resultMap.put("error", message);
-                resultMap.put("message", "提交失败，请到今日校园app手动打卡");
+                resultMap.put("message", message);
             }
             return resultMap;
         } catch (IOException e) {
