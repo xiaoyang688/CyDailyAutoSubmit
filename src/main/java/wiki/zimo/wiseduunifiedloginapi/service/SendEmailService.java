@@ -14,6 +14,6 @@ public interface SendEmailService {
      * @param text
      * @return
      */
-    String send(String sender, String receiver, String title, String text);
+    void send(String sender, String receiver, String title, String text);
 
 }

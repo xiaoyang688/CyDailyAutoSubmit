@@ -22,26 +22,18 @@ public class AutoSubmitTask {
     @Autowired
     private AutoSubmitService autoSubmitService;
 
-    @Autowired
-    private SendEmailService sendEmailService;
+    @Value("${USERNAME}")
+    private String USERNAME;
+
+    @Value("${PASSWORD}")
+    private String PASSWORD;
 
     @Value("${EMAIL}")
     private String EMAIL;
 
-    @Scheduled(cron = "0 0 1 * * ?")
+    @Scheduled(cron = "0 0 6 * * ?")
     public void autoSubmitTask() {
-        try {
-            Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo();
-            String formWid = formBaseInfo.get("formWid");
-            String collectorWid = formBaseInfo.get("wid");
-            String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid);
-            JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid);
-            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField);
-            sendEmailService.send("cydaily@qq.com", EMAIL, "【今日校园打卡情况通知】", map.get("message"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendEmailService.send("cydaily@qq.com", EMAIL, "【今日校园打卡情况通知】", "打卡失败！请您到今日校园app手动打卡~");
-        }
+        autoSubmitService.autoSubmit(USERNAME, PASSWORD, EMAIL);
     }
 
 

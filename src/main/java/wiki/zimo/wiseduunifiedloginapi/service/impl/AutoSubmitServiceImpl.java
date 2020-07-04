@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import wiki.zimo.wiseduunifiedloginapi.helper.LocalCache;
 import wiki.zimo.wiseduunifiedloginapi.service.AutoSubmitService;
 import wiki.zimo.wiseduunifiedloginapi.service.LoginService;
+import wiki.zimo.wiseduunifiedloginapi.service.SendEmailService;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,19 +39,39 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     @Value("${SUBMIT_FROM}")
     private String SUBMIT_FROM;
 
-    @Value("${USERNAME}")
-    private String USERNAME;
-
-    @Value("${PASSWORD}")
-    private String PASSWORD;
-
     public static OkHttpClient client = new OkHttpClient();
 
     @Autowired
     private LoginService loginService;
 
+    @Autowired
+    private AutoSubmitService autoSubmitService;
+
+    @Autowired
+    private SendEmailService sendEmailService;
+
     @Override
-    public Map<String, String> getFormBaseInfo() {
+    public String autoSubmit(String username, String password, String email) {
+        try {
+            String cookie = getCookie(username, password);
+            Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo(cookie);
+            String formWid = formBaseInfo.get("formWid");
+            String collectorWid = formBaseInfo.get("wid");
+            String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid, cookie);
+            JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid, cookie);
+            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField, cookie);
+            sendEmailService.send("cydaily@qq.com", email, "【今日校园打卡情况通知】", map.get("message"));
+            return "SUCCESS";
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendEmailService.send("cydaily@qq.com", email, "【今日校园打卡情况通知】", "打卡失败！请您到今日校园app手动打卡~");
+            return "FAIL";
+        }
+    }
+
+
+    @Override
+    public Map<String, String> getFormBaseInfo(String cookie) {
 
         HashMap<String, Integer> reqBody = new HashMap<>();
         reqBody.put("pageSize", 6);
@@ -58,7 +79,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
 
         String json = JSONObject.toJSONString(reqBody);
 
-        Response response = getResponse(COLLECTING_PROCESSING, json);
+        Response response = getResponse(COLLECTING_PROCESSING, json, cookie);
 
         try {
             String resp = response.body().string();
@@ -85,13 +106,13 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     }
 
     @Override
-    public String getSchoolTaskWid(String collectorWid) {
+    public String getSchoolTaskWid(String collectorWid, String cookie) {
 
         HashMap<String, String> map = new HashMap<>();
         map.put("collectorWid", collectorWid);
 
         String json = JSONObject.toJSONString(map);
-        Response response = getResponse(DETAIL_COLLECTOR, json);
+        Response response = getResponse(DETAIL_COLLECTOR, json, cookie);
 
         try {
             String resp = response.body().string();
@@ -108,7 +129,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     }
 
     @Override
-    public JSONArray getFormField(String formWid, String collectorWid) {
+    public JSONArray getFormField(String formWid, String collectorWid, String cookie) {
 
         HashMap<String, Integer> map = new HashMap<>();
         map.put("pageSize", 30);
@@ -117,7 +138,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
         map.put("collectorWid", Integer.valueOf(collectorWid));
 
         String json = JSONObject.toJSONString(map);
-        Response response = getResponse(FROM_FIELD, json);
+        Response response = getResponse(FROM_FIELD, json, cookie);
 
         try {
             String resp = response.body().string();
@@ -133,7 +154,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     }
 
     @Override
-    public Map<String, String> submitForm(String formWid, String collectWid, String address, String schoolTaskWid, JSONArray formField) {
+    public Map<String, String> submitForm(String formWid, String collectWid, String address, String schoolTaskWid, JSONArray formField, String cookie) {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("formWid", formWid);
@@ -143,7 +164,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
         jsonObject.put("form", formField);
 
         String json = JSONObject.toJSONString(jsonObject, SerializerFeature.WriteMapNullValue);
-        Response response = getResponse(SUBMIT_FROM, json);
+        Response response = getResponse(SUBMIT_FROM, json, cookie);
 
         HashMap<String, String> resultMap = new HashMap<>(16);
         try {
@@ -163,11 +184,6 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
         return null;
     }
 
-    @Override
-    public String autoSubmit(String username, String password, String email) {
-        //TODO
-        return null;
-    }
 
     /**
      * 处理提交表单数据
@@ -261,10 +277,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
      * @param json
      * @return
      */
-    private Response getResponse(String url, String json) {
-
-        String cookie = getCookie(USERNAME, PASSWORD);
-        System.out.println(cookie);
+    private Response getResponse(String url, String json, String cookie) {
 
         RequestBody body = RequestBody.create(json, MEDIA_TYPE);
         Request request = null;

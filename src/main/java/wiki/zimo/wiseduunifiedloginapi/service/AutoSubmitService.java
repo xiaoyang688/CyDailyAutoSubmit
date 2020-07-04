@@ -11,44 +11,55 @@ import java.util.Map;
 public interface AutoSubmitService {
 
     /**
-     * 获取表单基本信息
-     * @return
-     */
-    public Map<String, String> getFormBaseInfo();
-
-    /**
-     * 获取SchoolTaskWid
-     * @param collectorWid
-     * @return
-     */
-    public String getSchoolTaskWid(String collectorWid);
-
-
-    /**
-     * 获取表单详情
-     * @param formWid
-     * @param collectorWid
-     * @return
-     */
-    public JSONArray getFormField(String formWid, String collectorWid);
-
-    /**
-     * 提交订单
-     * @param formWid
-     * @param collectWid
-     * @param address
-     * @param schoolTaskWid
-     * @param formField
-     * @return
-     */
-    public Map<String, String> submitForm(String formWid, String collectWid, String address, String schoolTaskWid, JSONArray formField);
-
-    /**
      * 自动提交接口
+     *
      * @param username
      * @param password
      * @param email
      * @return
      */
     public String autoSubmit(String username, String password, String email);
+
+    /**
+     * 获取表单基本信息
+     *
+     * @param cookie
+     * @return
+     */
+    public Map<String, String> getFormBaseInfo(String cookie);
+
+    /**
+     * 获取SchoolTaskWid
+     *
+     * @param collectorWid
+     * @param cookie
+     * @return
+     */
+    public String getSchoolTaskWid(String collectorWid, String cookie);
+
+
+    /**
+     * 获取表单详情
+     *
+     * @param formWid
+     * @param collectorWid
+     * @param cookie
+     * @return
+     */
+    public JSONArray getFormField(String formWid, String collectorWid, String cookie);
+
+    /**
+     * 提交订单
+     *
+     * @param formWid
+     * @param collectWid
+     * @param address
+     * @param schoolTaskWid
+     * @param formField
+     * @param cookie
+     * @return
+     */
+    public Map<String, String> submitForm(String formWid, String collectWid, String address, String schoolTaskWid, JSONArray formField, String cookie);
+
+
 }
