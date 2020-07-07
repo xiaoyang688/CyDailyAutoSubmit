@@ -144,7 +144,6 @@ public class LoginServiceImpl implements LoginService {
             if (needCaptcha == null) {
                 needCaptcha = false;
             }
-            System.out.println(needCaptcha);
             if (needCaptcha) {
                 // 验证码处理，最多尝试10次
                 int time = 10;
@@ -152,6 +151,7 @@ public class LoginServiceImpl implements LoginService {
                     // 识别验证码
                     String code = ocrCaptcha(cookies, captcha_url + "?ltId=" + it);
                     params.put("captcha", code);
+
                 }
             } else {
                 params.put("captcha", "");
@@ -340,6 +340,7 @@ public class LoginServiceImpl implements LoginService {
                 File temp = new File(filePach);
                 temp.delete();
                 if (judge(s, 5)) {
+                    System.out.println(s);
                     return s;
                 }
             } else {

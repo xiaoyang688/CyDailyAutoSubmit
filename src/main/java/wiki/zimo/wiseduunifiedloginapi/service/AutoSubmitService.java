@@ -11,14 +11,25 @@ import java.util.Map;
 public interface AutoSubmitService {
 
     /**
-     * 自动提交接口
+     * 自动提交接口(邮箱通知)
      *
      * @param username
      * @param password
      * @param email
      * @return
      */
-    public String autoSubmit(String username, String password, String email);
+    public String autoSubmitByEmail(String username, String password, String email, String uid);
+
+    /**
+     * 自动提交接口(微信通知)
+     *
+     * @param username
+     * @param password
+     * @param email
+     * @param uid
+     * @return
+     */
+    public String autoSubmitByWxPush(String username, String password, String email, String uid);
 
     /**
      * 获取表单基本信息
@@ -61,5 +72,12 @@ public interface AutoSubmitService {
      */
     public Map<String, String> submitForm(String formWid, String collectWid, String address, String schoolTaskWid, JSONArray formField, String cookie);
 
+    /**
+     * 获取最新cookie
+     * @param username
+     * @param password
+     * @return
+     */
+    public String getCookie(String username, String password);
 
-}
+    }

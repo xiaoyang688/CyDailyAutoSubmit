@@ -3,6 +3,8 @@ server:
 spring:
   profiles:
     active: dev
+  mvc:
+    static-path-pattern: /static/**
   mail:
     host: smtp.qq.com
     username: cydaily@qq.com  #发送方的邮箱
@@ -20,7 +22,22 @@ spring:
           socketFactory:
             port: 587
             class: javax.net.ssl.SSLSocketFactory
-  # CAS登录接口
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/auto_submit?characterEncoding=utf8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    dbcp2:
+      max-idle: 10
+      max-wait-millis: 10000
+      min-idle: 5
+      initial-size: 5
+
+# 回调地址
+CALLBACK_URL: https://v2.xiaoyang666.top/api/login
+# 微信通知TOKEN
+APP_TOKEN: AT_sAwyp9Yus1w5TAoQIm2Yy1evNzjKDcQU
+
 LOGIN_API: https://thxy.campusphere.net/iap/
 # 是否需要验证码接口，连续三次输错密码智慧校园将会要求输入验证码，防君子不防小人
 NEEDCAPTCHA_API:

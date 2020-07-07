@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <meta name="theme-color" content="#3d3c53">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=0">
+    <title>登录</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <style type="text/css">
+        .imgtest {
+            margin: 10px 5px;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .list_ul figcaption p {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .imgtest figure div {
+            display: inline-block;
+            margin: 5px auto;
+            width: 100px;
+            height: 100px;
+            border-radius: 100px;
+            border: 2px solid #fff;
+            overflow: hidden;
+            -webkit-box-shadow: 0 0 3px #ccc;
+            box-shadow: 0 0 3px #ccc;
+        }
+
+        .imgtest img {
+            width: 100%;
+            min-height: 100%;
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        /**
+         * YDUI 可伸缩布局方案
+         * rem计算方式：设计图尺寸px / 100 = 实际rem  【例: 100px = 1rem，32px = .32rem】
+         */
+        !function (window) {
+
+            /* 设计图文档宽度 */
+            var docWidth = 750;
+
+            var doc = window.document,
+                docEl = doc.documentElement,
+                resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize';
+
+            var recalc = (function refreshRem() {
+                var clientWidth = docEl.getBoundingClientRect().width;
+
+                /* 8.55：小于320px不再缩小，11.2：大于420px不再放大 */
+                docEl.style.fontSize = Math.max(Math.min(20 * (clientWidth / docWidth), 11.2), 8.55) * 5 + 'px';
+
+                return refreshRem;
+            })();
+
+            /* 添加倍屏标识，安卓为1 */
+            docEl.setAttribute('data-dpr', window.navigator.appVersion.match(/iphone/gi) ? window.devicePixelRatio : 1);
+
+            if (/iP(hone|od|ad)/.test(window.navigator.userAgent)) {
+                /* 添加IOS标识 */
+                doc.documentElement.classList.add('ios');
+                /* IOS8以上给html添加hairline样式，以便特殊处理 */
+                if (parseInt(window.navigator.appVersion.match(/OS (\d+)_(\d+)_?(\d+)?/)[1], 10) >= 8)
+                    doc.documentElement.classList.add('hairline');
+            }
+
+            if (!doc.addEventListener) return;
+            window.addEventListener(resizeEvt, recalc, false);
+            doc.addEventListener('DOMContentLoaded', recalc, false);
+
+        }(window);
+    </script>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-wrapper-inner">
+        <div class="imgtest">
+            <figure>
+                <div>
+                    <img th:src="${headImg}"/>
+                </div>
+            </figure>
+        </div>
+        <div class="wrapper-title-text" th:text="${nickName}"></div>
+        <form class="form-submit-cont">
+            <div class="form-group-wrapper">
+                <div class="group-input-item">
+                    <div class="Icon">
+                        <i class="user-icon"></i>
+                    </div>
+                    <input type="hidden" name="uid" th:value="${uid}">
+                    <div class="user-input">
+                        <input type="text" name="username" placeholder="请输入学号">
+                    </div>
+                </div>
+                <div class="group-input-item">
+                    <div class="Icon">
+                        <i class="pw-icon"></i>
+                    </div>
+                    <div class="user-input">
+                        <input type="password" name="password" placeholder="请输入密码">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form-group-btn">
+            <button class="login-btn">登录</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/jquery-1.8.3.min.js"></script>
+<script src="/static/js/fastclick.js"></script>
+<script src="/static/js/layer.js"></script>
+<script>
+
+    $(".login-wrapper").on("click", ".login-btn", function () {
+
+        layer.open({
+            anim: 'scale',
+            content: '正在登录，请稍后。。。'
+            , skin: 'msg'
+            , time: 5 //2秒后自动关闭
+        });
+
+        var d = {};
+        var t = $('.form-submit-cont').serializeArray();
+        $.each(t, function () {
+            d[this.name] = this.value;
+        });
+
+        if (!d.username) {
+            layer.open({
+                anim: 'scale',
+                content: '请输入账号'
+                , skin: 'msg'
+                , time: 3 //2秒后自动关闭
+            });
+        } else if (!d.password) {
+            layer.open({
+                content: '请输入密码'
+                , skin: 'msg'
+                , time: 3 //2秒后自动关闭
+            });
+        } else {
+            var url = "/api/login";
+            var urlData = {username: d.username, password: d.password, uid: d.uid}
+            $.post(url, urlData, function (res) {
+                if (res.message == "success") {
+                    layer.open({
+                        anim: 'scale',
+                        content: '登录成功！3秒后自动关闭页面~'
+                        , skin: 'msg'
+                        , time: 3 //2秒后自动关闭
+                    });
+                    setTimeout(function(){
+                        window.open("about:blank", "_self").close();
+                    }, 3000);
+                } else {
+                    alert("学号或密码错误，请您重新输入！")
+                }
+            }, "json");
+        }
+    })
+</script>
+
+</body>
+</html>

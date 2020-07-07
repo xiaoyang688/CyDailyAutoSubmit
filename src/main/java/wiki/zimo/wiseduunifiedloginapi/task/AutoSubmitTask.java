@@ -1,15 +1,15 @@
 package wiki.zimo.wiseduunifiedloginapi.task;
 
-import com.alibaba.fastjson.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import wiki.zimo.wiseduunifiedloginapi.dao.UserMapper;
+import wiki.zimo.wiseduunifiedloginapi.dto.User;
 import wiki.zimo.wiseduunifiedloginapi.service.AutoSubmitService;
-import wiki.zimo.wiseduunifiedloginapi.service.SendEmailService;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author xiaoyang
@@ -22,6 +22,9 @@ public class AutoSubmitTask {
     @Autowired
     private AutoSubmitService autoSubmitService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Value("${USERNAME}")
     private String USERNAME;
 
@@ -32,9 +35,24 @@ public class AutoSubmitTask {
     private String EMAIL;
 
     @Scheduled(cron = "0 0 6 * * ?")
-    public void autoSubmitTask() {
-        autoSubmitService.autoSubmit(USERNAME, PASSWORD, EMAIL);
+    public void autoSubmitTaskByEmail() {
+        autoSubmitService.autoSubmitByEmail(USERNAME, PASSWORD, EMAIL, null);
     }
 
+    @Scheduled(cron = "0 0 9 * * ?")
+    public void autoSubmitTaskByWxPush() {
+
+        List<User> users = userMapper.selectAll();
+
+        for (User user : users) {
+            autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getEmail(), user.getUid());
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
 }

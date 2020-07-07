@@ -8,12 +8,14 @@ import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import wiki.zimo.wiseduunifiedloginapi.dto.User;
+import wiki.zimo.wiseduunifiedloginapi.helper.AESUtil;
 import wiki.zimo.wiseduunifiedloginapi.helper.LocalCache;
-import wiki.zimo.wiseduunifiedloginapi.service.AutoSubmitService;
-import wiki.zimo.wiseduunifiedloginapi.service.LoginService;
-import wiki.zimo.wiseduunifiedloginapi.service.SendEmailService;
+import wiki.zimo.wiseduunifiedloginapi.service.*;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,8 +52,14 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     @Autowired
     private SendEmailService sendEmailService;
 
+    @Autowired
+    private WxPushService wxPushService;
+
+    @Autowired
+    private UserService userService;
+
     @Override
-    public String autoSubmit(String username, String password, String email) {
+    public String autoSubmitByEmail(String username, String password, String email, String uid) {
         try {
             String cookie = getCookie(username, password);
             Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo(cookie);
@@ -60,11 +68,43 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid, cookie);
             JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid, cookie);
             Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField, cookie);
-            sendEmailService.send("cydaily@qq.com", email, "【今日校园打卡情况通知】", map.get("message"));
+            if (email != null) {
+                sendEmailService.send("cydaily@qq.com", email, "【今日校园打卡情况通知】", map.get("message"));
+            }
             return "SUCCESS";
         } catch (Exception e) {
             e.printStackTrace();
-            sendEmailService.send("cydaily@qq.com", email, "【今日校园打卡情况通知】", "打卡失败！请您到今日校园app手动打卡~");
+            if (email != null) {
+                sendEmailService.send("cydaily@qq.com", email, "【今日校园打卡情况通知】", "打卡失败！请您到今日校园app手动打卡~");
+            }
+            return "FAIL";
+        }
+    }
+
+    @Override
+    public String autoSubmitByWxPush(String username, String password, String email, String uid) {
+        User user = userService.findByUsername(username);
+        if (user == null) {
+            return null;
+        }
+        String realName = AESUtil.decrypt(user.getRealName());
+        try {
+            String cookie = getCookie(AESUtil.decrypt(username), AESUtil.decrypt(password));
+            Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo(cookie);
+            String formWid = formBaseInfo.get("formWid");
+            String collectorWid = formBaseInfo.get("wid");
+            String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid, cookie);
+            JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid, cookie);
+            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField, cookie);
+            if (uid != null) {
+                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message"), "UID_" + uid);
+            }
+            return "SUCCESS";
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (uid != null) {
+                wxPushService.wxPush("尊敬的" + realName + "同学！在" + getCurrentTime(new Date()) + "打卡失败！请您到今日校园app手动打卡~", "UID_" + uid);
+            }
             return "FAIL";
         }
     }
@@ -184,7 +224,6 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
         return null;
     }
 
-
     /**
      * 处理提交表单数据
      *
@@ -252,7 +291,8 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
      * @param password
      * @return
      */
-    private String getCookie(String username, String password) {
+    @Override
+    public String getCookie(String username, String password) {
         Map<String, String> cookieMap = null;
         String cookie = null;
         try {
@@ -267,6 +307,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println(cookie);
         return cookie;
     }
 
@@ -320,5 +361,11 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private String getCurrentTime(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("MM月dd日HH时mm分ss秒");
+        String format = formatter.format(date);
+        return format;
     }
 }

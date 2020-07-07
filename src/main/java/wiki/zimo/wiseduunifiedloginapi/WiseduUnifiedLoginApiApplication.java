@@ -4,8 +4,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import tk.mybatis.spring.annotation.MapperScan;
 
+/**
+ * @author xiaoyang
+ */
 @SpringBootApplication
+@MapperScan(value = "wiki.zimo.wiseduunifiedloginapi.dao")
 public class WiseduUnifiedLoginApiApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
