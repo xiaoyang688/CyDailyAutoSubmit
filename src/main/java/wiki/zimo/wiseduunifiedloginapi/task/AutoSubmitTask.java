@@ -7,9 +7,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import wiki.zimo.wiseduunifiedloginapi.dao.UserMapper;
 import wiki.zimo.wiseduunifiedloginapi.dto.User;
+import wiki.zimo.wiseduunifiedloginapi.helper.AESUtil;
 import wiki.zimo.wiseduunifiedloginapi.service.AutoSubmitService;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author xiaoyang
@@ -43,16 +51,22 @@ public class AutoSubmitTask {
     public void autoSubmitTaskByWxPush() {
 
         List<User> users = userMapper.selectAll();
-
+        CyclicBarrier barrier = new CyclicBarrier(users.size());
         for (User user : users) {
-            autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getEmail(), user.getUid());
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            System.out.println(AESUtil.decrypt(user.getUsername()));
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getEmail(), user.getUid());
+                }
+            }).start();
         }
-
+        try {
+            barrier.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (BrokenBarrierException e) {
+            e.printStackTrace();
+        }
     }
-
 }

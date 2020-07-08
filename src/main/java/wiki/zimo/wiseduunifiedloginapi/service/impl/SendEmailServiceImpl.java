@@ -17,7 +17,7 @@ public class SendEmailServiceImpl implements SendEmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    private Integer EXPIRE_TIME = 60;
+    private Integer EXPIRE_TIME = 5;
 
     private String IS_SEND = "1";
 

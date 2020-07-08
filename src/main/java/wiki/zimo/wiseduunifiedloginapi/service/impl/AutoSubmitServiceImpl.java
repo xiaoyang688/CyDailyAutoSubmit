@@ -83,28 +83,33 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
 
     @Override
     public String autoSubmitByWxPush(String username, String password, String email, String uid) {
-        User user = userService.findByUsername(username);
-        if (user == null) {
-            return null;
-        }
-        String realName = AESUtil.decrypt(user.getRealName());
+
+        String realName = null;
+
         try {
-            String cookie = getCookie(AESUtil.decrypt(username), AESUtil.decrypt(password));
+            User user = userService.findByUsername(username);
+            if (user == null) {
+                return null;
+            }
+            realName = AESUtil.decrypt(user.getRealName());
+            String cookie = null;
+            cookie = getCookie(AESUtil.decrypt(username), AESUtil.decrypt(password));
             Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo(cookie);
+            if (formBaseInfo == null) {
+                sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", "打卡时间已过！");
+            }
             String formWid = formBaseInfo.get("formWid");
             String collectorWid = formBaseInfo.get("wid");
             String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid, cookie);
             JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid, cookie);
             Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField, cookie);
             if (uid != null) {
+                sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", realName + " " + map.get("message"));
                 wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message"), "UID_" + uid);
             }
             return "SUCCESS";
         } catch (Exception e) {
             e.printStackTrace();
-            if (uid != null) {
-                wxPushService.wxPush("尊敬的" + realName + "同学！在" + getCurrentTime(new Date()) + "打卡失败！请您到今日校园app手动打卡~", "UID_" + uid);
-            }
             return "FAIL";
         }
     }
@@ -301,8 +306,8 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
                 cookie = cookieCache;
             } else {
                 cookieMap = loginService.login(username, password);
-                LocalCache.put("cookie", cookieMap.get("cookies"), 60);
-                cookie = LocalCache.get("cookie");
+                LocalCache.put(username, cookieMap.get("cookies"), 60);
+                cookie = LocalCache.get(username);
             }
         } catch (Exception e) {
             e.printStackTrace();
