@@ -30,7 +30,7 @@ public class AESUtil {
     //public static final String AES_TYPE = "AES/CBC/ZeroPadding";
 
     //私钥
-    private static final String AES_KEY = "xxxxx";   //AES固定格式为128/192/256 bits.即：16/24/32bytes。DES固定格式为128bits，即8bytes。
+    private static final String AES_KEY = "xxxx";   //AES固定格式为128/192/256 bits.即：16/24/32bytes。DES固定格式为128bits，即8bytes。
 
     //字符补全
     private static final String[] consult = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G"};
@@ -86,9 +86,9 @@ public class AESUtil {
     }
 
     public static void main(String[] args) {
-        String encrypt = AESUtil.encrypt("20170407430311");
+        String encrypt = AESUtil.encrypt("");
         System.out.println(encrypt);
-        String decrypt = AESUtil.decrypt("nR4YCkiwlL4EvNyfGJ37tw==");
+        String decrypt = AESUtil.decrypt(encrypt);
         System.out.println(decrypt);
     }
 

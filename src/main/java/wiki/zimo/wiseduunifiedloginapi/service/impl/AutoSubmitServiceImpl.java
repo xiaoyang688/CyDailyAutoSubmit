@@ -41,6 +41,9 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     @Value("${SUBMIT_FROM}")
     private String SUBMIT_FROM;
 
+    @Value("${ADDRESS}")
+    private String ADDRESS;
+
     public static OkHttpClient client = new OkHttpClient();
 
     @Autowired
@@ -67,7 +70,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             String collectorWid = formBaseInfo.get("wid");
             String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid, cookie);
             JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid, cookie);
-            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField, cookie);
+            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, ADDRESS, schoolTaskWid, formField, cookie);
             if (email != null) {
                 sendEmailService.send("cydaily@qq.com", email, "【今日校园打卡情况通知】", map.get("message"));
             }
@@ -102,7 +105,8 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             String collectorWid = formBaseInfo.get("wid");
             String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid, cookie);
             JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid, cookie);
-            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, "定位信息", schoolTaskWid, formField, cookie);
+            System.out.println(formBaseInfo);
+            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, ADDRESS, schoolTaskWid, formField, cookie);
             if (uid != null) {
                 sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", realName + " " + map.get("message"));
                 wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message"), "UID_" + uid);

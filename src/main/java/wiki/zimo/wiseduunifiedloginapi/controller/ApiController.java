@@ -69,7 +69,7 @@ public class ApiController {
                 user.setUsername(AESUtil.encrypt(user.getUsername()));
                 user.setPassword(AESUtil.encrypt(user.getPassword()));
                 user.setRealName(AESUtil.encrypt(realName));
-                userMapper.insertSelective(user);
+                userMapper.insert(user);
             }
             map.put("message", "success");
             String currentTime = getCurrentTime(new Date());
