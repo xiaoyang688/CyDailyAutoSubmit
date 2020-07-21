@@ -101,11 +101,7 @@
         </div>
         <div class="wrapper-title-text" th:text="${nickName}"></div>
         <div class="wrapper-title-text" th:text="'尊敬的'+ ${realName} +'同学'"></div>
-        <div class="wrapper-title-text" th:text="'您已成功模拟今日校园登录,无需重新登陆'"></div>
-
-        <!--<div class="form-group-btn">
-            <button class="login-btn">返回</button>
-        </div>-->
+        <div class="wrapper-title-text" th:text="'您已成功取消自动打卡'"></div>
     </div>
 </div>
 
@@ -117,13 +113,13 @@
         // 在这里写你的代码...
         layer.open({
             anim: 'scale',
-            content: '5秒后自动关闭本页面！'
+            content: '3秒后自动关闭本页面！'
             , skin: 'msg'
-            , time: 5 //2秒后自动关闭
+            , time: 3 //2秒后自动关闭
         });
         setTimeout(function(){
             window.open("about:blank", "_self").close();
-        }, 5000);
+        }, 3000);
     });
     $(".login-wrapper").on("click", ".login-btn", function () {
         window.open("about:blank", "_self").close();

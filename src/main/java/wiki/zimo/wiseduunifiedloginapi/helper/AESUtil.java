@@ -3,6 +3,7 @@ package wiki.zimo.wiseduunifiedloginapi.helper;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
+import wiki.zimo.wiseduunifiedloginapi.service.impl.WxPushServiceImpl;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -30,7 +31,7 @@ public class AESUtil {
     //public static final String AES_TYPE = "AES/CBC/ZeroPadding";
 
     //私钥
-    private static final String AES_KEY = "xxxx";   //AES固定格式为128/192/256 bits.即：16/24/32bytes。DES固定格式为128bits，即8bytes。
+    private static final String AES_KEY = "xiaoyang66668888";   //AES固定格式为128/192/256 bits.即：16/24/32bytes。DES固定格式为128bits，即8bytes。
 
     //字符补全
     private static final String[] consult = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G"};
@@ -86,9 +87,7 @@ public class AESUtil {
     }
 
     public static void main(String[] args) {
-        String encrypt = AESUtil.encrypt("");
-        System.out.println(encrypt);
-        String decrypt = AESUtil.decrypt(encrypt);
+        String decrypt = decrypt("QBBo9jVGC6wegP7qx6wJ6A==");
         System.out.println(decrypt);
     }
 

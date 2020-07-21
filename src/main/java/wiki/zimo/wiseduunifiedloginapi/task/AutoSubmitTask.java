@@ -1,37 +1,39 @@
 package wiki.zimo.wiseduunifiedloginapi.task;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Component;
 import wiki.zimo.wiseduunifiedloginapi.dao.UserMapper;
 import wiki.zimo.wiseduunifiedloginapi.dto.User;
-import wiki.zimo.wiseduunifiedloginapi.helper.AESUtil;
 import wiki.zimo.wiseduunifiedloginapi.service.AutoSubmitService;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.io.IOException;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * @author xiaoyang
  * @create 2020/7/3 12:48 下午
  */
-@Component
+
 @EnableScheduling
+@Component
 public class AutoSubmitTask {
 
     @Autowired
     private AutoSubmitService autoSubmitService;
-
-    @Autowired
-    private UserMapper userMapper;
 
     @Value("${USERNAME}")
     private String USERNAME;
@@ -42,31 +44,21 @@ public class AutoSubmitTask {
     @Value("${EMAIL}")
     private String EMAIL;
 
-    @Scheduled(cron = "0 0 6 * * ?")
-    public void autoSubmitTaskByEmail() {
-        autoSubmitService.autoSubmitByEmail(USERNAME, PASSWORD, EMAIL, null);
-    }
+    @Value("${CALLBACK_URL}")
+    private String CALLBACK_URL;
 
-    @Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(cron = "0 0 9 * * *")
     public void autoSubmitTaskByWxPush() {
-
-        List<User> users = userMapper.selectAll();
-        CyclicBarrier barrier = new CyclicBarrier(users.size());
-        for (User user : users) {
-            System.out.println(AESUtil.decrypt(user.getUsername()));
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getEmail(), user.getUid());
-                }
-            }).start();
-        }
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(CALLBACK_URL + "/api/autoSubmitAllUser")
+                .build();
         try {
-            barrier.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (BrokenBarrierException e) {
+            client.newCall(request).execute();
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
+
 }

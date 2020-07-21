@@ -11,6 +11,11 @@ import java.util.Map;
 public interface AutoSubmitService {
 
     /**
+     * 自动提交所有用户
+     */
+    void autoSubmitAllUser();
+
+    /**
      * 自动提交接口(邮箱通知)
      *
      * @param username

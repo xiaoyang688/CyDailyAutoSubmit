@@ -30,16 +30,11 @@ public class WxPushServiceImpl implements WxPushService {
 
     @Override
     public void wxPush(String content, String uid) {
-        String status = LocalCache.get(uid);
-        if (STATUS.equals(status)) {
-            return;
-        }
         message.setAppToken(APP_TOKEN);
         message.setContentType(Message.CONTENT_TYPE_TEXT);
         message.setContent(content);
         message.setUid(uid);
         WxPusher.send(message);
-        LocalCache.put(uid, "1", 5);
     }
 
     @Override

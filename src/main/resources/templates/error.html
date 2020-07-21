@@ -11,7 +11,7 @@
     <meta content="telephone=no,email=no" name="format-detection">
     <meta name="theme-color" content="#3d3c53">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=0">
-    <title>登录</title>
+    <title></title>
     <link rel="stylesheet" href="/static/css/common.css">
     <link rel="stylesheet" href="/static/css/login.css">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -100,30 +100,7 @@
             </figure>
         </div>
         <div class="wrapper-title-text" th:text="${nickName}"></div>
-        <form class="form-submit-cont">
-            <div class="form-group-wrapper">
-                <div class="group-input-item">
-                    <div class="Icon">
-                        <i class="user-icon"></i>
-                    </div>
-                    <input type="hidden" name="uid" th:value="${uid}">
-                    <div class="user-input">
-                        <input type="text" name="username" placeholder="请输入学号">
-                    </div>
-                </div>
-                <div class="group-input-item">
-                    <div class="Icon">
-                        <i class="pw-icon"></i>
-                    </div>
-                    <div class="user-input">
-                        <input type="password" name="password" placeholder="请输入密码">
-                    </div>
-                </div>
-            </div>
-        </form>
-        <div id="btn" class="form-group-btn">
-            <button  class="login-btn">登录</button>
-        </div>
+        <div class="wrapper-title-text" th:text="'您当前用户未模拟登录今日校园'"></div>
     </div>
 </div>
 
@@ -131,63 +108,20 @@
 <script src="/static/js/fastclick.js"></script>
 <script src="/static/js/layer.js"></script>
 <script>
-
-    $(".login-wrapper").on("click", ".form-group-btn", function () {
-
-        document.getElementById('btn').className = 'form-group-btn-logining';
-
+    $(document).ready(function(){
+        // 在这里写你的代码...
         layer.open({
             anim: 'scale',
-            content: '正在登录，请稍后。。。'
+            content: '3秒后自动关闭本页面！'
             , skin: 'msg'
-            , time: 4 //2秒后自动关闭
+            , time: 3 //2秒后自动关闭
         });
-
-        var d = {};
-        var t = $('.form-submit-cont').serializeArray();
-        $.each(t, function () {
-            d[this.name] = this.value;
-        });
-
-        if (!d.username) {
-            layer.open({
-                anim: 'scale',
-                content: '请输入账号'
-                , skin: 'msg'
-                , time: 3 //2秒后自动关闭
-            });
-        } else if (!d.password) {
-            layer.open({
-                content: '请输入密码'
-                , skin: 'msg'
-                , time: 3 //2秒后自动关闭
-            });
-        } else {
-            var url = "/api/login";
-            var urlData = {username: d.username, password: d.password, uid: d.uid}
-            $.post(url, urlData, function (res) {
-
-                if (res.message == "success") {
-                    layer.open({
-                        anim: 'scale',
-                        content: '登录成功！3秒后自动关闭页面~'
-                        , skin: 'msg'
-                        , time: 3 //2秒后自动关闭
-                    });
-                    setTimeout(function(){
-                        window.open("about:blank", "_self").close();
-                    }, 3000);
-                } else {
-                    layer.open({
-                        anim: 'scale',
-                        content: '账号或密码错误！'
-                        , skin: 'msg'
-                        , time: 2 //2秒后自动关闭
-                    });
-                    document.getElementById('btn').className = 'form-group-btn';
-                }
-            }, "json");
-        }
+        setTimeout(function(){
+            window.open("about:blank", "_self").close();
+        }, 3000);
+    });
+    $(".login-wrapper").on("click", ".login-btn", function () {
+        window.open("about:blank", "_self").close();
     })
 </script>
 

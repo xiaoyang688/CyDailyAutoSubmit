@@ -34,7 +34,7 @@ spring:
       initial-size: 5
 
 # 回调地址
-CALLBACK_URL: https://v2.xiaoyang666.top/api/login
+CALLBACK_URL: https://v2.xiaoyang666.top
 # 微信通知TOKEN
 APP_TOKEN: AT_sAwyp9Yus1w5TAoQIm2Yy1evNzjKDcQU
 

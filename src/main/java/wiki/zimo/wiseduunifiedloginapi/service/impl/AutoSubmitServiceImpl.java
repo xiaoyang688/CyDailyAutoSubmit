@@ -8,6 +8,7 @@ import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import wiki.zimo.wiseduunifiedloginapi.dao.UserMapper;
 import wiki.zimo.wiseduunifiedloginapi.dto.User;
 import wiki.zimo.wiseduunifiedloginapi.helper.AESUtil;
 import wiki.zimo.wiseduunifiedloginapi.helper.LocalCache;
@@ -17,7 +18,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * @author xiaoyang
@@ -44,6 +48,9 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     @Value("${ADDRESS}")
     private String ADDRESS;
 
+    @Value("${CALLBACK_URL}")
+    private String CALLBACK_URL;
+
     public static OkHttpClient client = new OkHttpClient();
 
     @Autowired
@@ -60,6 +67,31 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Override
+    public void autoSubmitAllUser() {
+
+        List<User> users = userMapper.selectAll();
+        CyclicBarrier barrier = new CyclicBarrier(users.size());
+        for (User user : users) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getEmail(), user.getUid());
+                }
+            }).start();
+        }
+        try {
+            barrier.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (BrokenBarrierException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public String autoSubmitByEmail(String username, String password, String email, String uid) {
@@ -88,6 +120,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     public String autoSubmitByWxPush(String username, String password, String email, String uid) {
 
         String realName = null;
+        String url = CALLBACK_URL + "/api/logout/" + uid;
 
         try {
             User user = userService.findByUsername(username);
@@ -98,8 +131,10 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             String cookie = null;
             cookie = getCookie(AESUtil.decrypt(username), AESUtil.decrypt(password));
             Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo(cookie);
+            System.out.println(formBaseInfo);
             if (formBaseInfo == null) {
-                sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", "打卡时间已过！");
+                sendEmailService.send("cydaily@qq.com", "18024088480@163.com", "【今日校园打卡情况通知】", "打卡时间已过！");
+                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + "不在打卡的有限时间范围内" + "<a href=\"" + url + "\">【点击取消自动打卡】</a>", "UID_" + uid);
             }
             String formWid = formBaseInfo.get("formWid");
             String collectorWid = formBaseInfo.get("wid");
@@ -108,8 +143,8 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             System.out.println(formBaseInfo);
             Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, ADDRESS, schoolTaskWid, formField, cookie);
             if (uid != null) {
-                sendEmailService.send("cydaily@qq.com", "1501214688@qq.com", "【今日校园打卡情况通知】", realName + " " + map.get("message"));
-                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message"), "UID_" + uid);
+                sendEmailService.send("cydaily@qq.com", "18024088480@163.com", "【今日校园打卡情况通知】", realName + " " + map.get("message"));
+                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message") + "<a href=\"" + url + "\">【点击取消自动打卡】</a>", "UID_" + uid);
             }
             return "SUCCESS";
         } catch (Exception e) {

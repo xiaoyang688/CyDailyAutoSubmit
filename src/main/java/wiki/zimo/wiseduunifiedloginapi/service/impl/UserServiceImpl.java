@@ -76,4 +76,12 @@ public class UserServiceImpl implements UserService {
         return searchUser;
 
     }
+
+    @Override
+    public int deleteByUID(String uid) {
+        User user = new User();
+        user.setUid(uid);
+        int result = userMapper.delete(user);
+        return result;
+    }
 }

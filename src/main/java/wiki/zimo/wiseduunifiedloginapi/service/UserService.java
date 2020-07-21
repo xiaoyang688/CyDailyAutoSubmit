@@ -28,4 +28,12 @@ public interface UserService {
      * @return
      */
     User findByUid(String uid);
+
+    /**
+     * 通过uid删除
+     *
+     * @param uid
+     * @return
+     */
+    int deleteByUID(String uid);
 }
