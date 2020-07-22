@@ -67,7 +67,7 @@
         var e = document.scripts, n = e[e.length - 1], i = n.src, s = i.substring(0, i.lastIndexOf("/") + 1);
         n.getAttribute("merge") || document.head.appendChild(function () {
             var e = t.createElement("link");
-            return e.href = s + "../css/layer.css", e.type = "text/css", e.rel = "styleSheet", e.id = "layermcss", e
+            return e.href = s + "../../css/layer.css", e.type = "text/css", e.rel = "styleSheet", e.id = "layermcss", e
         }())
     }()
 }(window);

@@ -12,9 +12,9 @@
     <meta name="theme-color" content="#3d3c53">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=0">
     <title>登录</title>
-    <link rel="stylesheet" href="/static/css/common.css">
-    <link rel="stylesheet" href="/static/css/login.css">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/login.css">
+    <link rel="stylesheet" href="../../css/style.css">
 
     <style type="text/css">
         .imgtest {
@@ -99,7 +99,7 @@
                 </div>
             </figure>
         </div>
-        <div class="wrapper-title-text" th:text="${nickName}"></div>
+<!--        <div class="wrapper-title-text" th:text="${nickName}"></div>-->
         <form class="form-submit-cont">
             <div class="form-group-wrapper">
                 <div class="group-input-item">
@@ -119,18 +119,85 @@
                         <input type="password" name="password" placeholder="请输入密码">
                     </div>
                 </div>
+
+                <h5 id="address"></h5>
+
             </div>
         </form>
         <div id="btn" class="form-group-btn">
-            <button  class="login-btn">登录</button>
+            <button class="login-btn">登录</button>
         </div>
     </div>
 </div>
 
-<script src="/static/js/jquery-1.8.3.min.js"></script>
-<script src="/static/js/fastclick.js"></script>
-<script src="/static/js/layer.js"></script>
+<script src="../../js/jquery-1.8.3.min.js"></script>
+<script src="../../js/fastclick.js"></script>
+<script src="../../js/layer.js"></script>
+<script src="../../js/jssdk.js"></script>
+<script src="../../js/jquery-1.8.3.min.js"></script>
+<script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
+<script type="text/javascript"
+        src="https://webapi.amap.com/maps?v=1.4.15&key=3ce9a1ca398bf74b5f6387efc75bab54&plugin=AMap.Geocoder"></script>
 <script>
+
+    var address = null;
+    let uid = window.location.href.split("=")[1];
+    $(function () {
+        $.ajax({
+            url: "/wechat/config?uid=" + uid,
+            method: "get",
+            success: function (data) {
+                wx.config({
+                    debug: false,
+                    appId: data.appid,
+                    timestamp: data.timestamp,
+                    nonceStr: data.nonceStr,
+                    signature: data.signature,
+                    jsApiList: ['getLocation']
+                });
+            }
+        });
+    });
+
+    wx.ready(function () {
+        // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+        wx.getLocation({
+            type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+            success: function (res) {
+                var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+                var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+                $.ajax({
+                    url: "/api/getAddress?longitude=" + longitude + "&latitude=" + latitude,
+                    method: "get",
+                    success: function (resp) {
+                        address = resp;
+                        document.getElementById("address").innerText = "当前定位：" + resp;
+                        layer.open({
+                            anim: 'scale',
+                            content: '定位成功！'
+                            , skin: 'msg'
+                            , time: 2 //2秒后自动关闭
+                        });
+                        document.getElementById('btn').className = 'form-group-btn';
+                    }
+                });
+            }
+        });
+    });
+
+    wx.error(function (res) {
+        alert("定位失败！请您打开手机定位尝试~")
+    });
+
+    document.getElementById('btn').className = 'form-group-btn-logining';
+
+    layer.open({
+        anim: 'scale',
+        content: '正在获取当前定位。。。'
+        , skin: 'msg'
+        , time: 2 //2秒后自动关闭
+    });
+
 
     $(".login-wrapper").on("click", ".form-group-btn", function () {
 
@@ -164,7 +231,7 @@
             });
         } else {
             var url = "/api/login";
-            var urlData = {username: d.username, password: d.password, uid: d.uid}
+            var urlData = {username: d.username, password: d.password, uid: d.uid, address: address}
             $.post(url, urlData, function (res) {
 
                 if (res.message == "success") {
@@ -174,7 +241,7 @@
                         , skin: 'msg'
                         , time: 3 //2秒后自动关闭
                     });
-                    setTimeout(function(){
+                    setTimeout(function () {
                         window.open("about:blank", "_self").close();
                     }, 3000);
                 } else {

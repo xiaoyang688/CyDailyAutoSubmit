@@ -23,6 +23,14 @@ public interface UserService {
     String getRealName(User user);
 
     /**
+     * 获取用户地址
+     * @param latitude
+     * @param longitude
+     * @return
+     */
+    String getAddress(String longitude, String latitude);
+
+    /**
      * 通过uid查找用户
      * @param uid
      * @return

@@ -87,7 +87,7 @@ public class AESUtil {
     }
 
     public static void main(String[] args) {
-        String decrypt = decrypt("QBBo9jVGC6wegP7qx6wJ6A==");
+        String decrypt = decrypt("");
         System.out.println(decrypt);
     }
 

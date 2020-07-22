@@ -115,6 +115,12 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.github.hi-fi/httpclient -->
+        <dependency>
+            <groupId>com.github.hi-fi</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>0.0.6</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

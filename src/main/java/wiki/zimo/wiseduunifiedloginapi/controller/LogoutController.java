@@ -42,7 +42,7 @@ public class LogoutController {
         if (user != null) {
             model.addAttribute("realName", AESUtil.decrypt(user.getRealName()));
         }
-        String url = CALLBACK_URL + "/api/login/" + uid;
+        String url = CALLBACK_URL + "/api/login?uid=" + uid;
         int result = userService.deleteByUID(uid);
         if (result < 1) {
             wxPushService.wxPush("您当前没有模拟登录今日校园" + "\n" + "\uD83D\uDC49<a href=\"" + url + "\">点击模拟登录今日校园</a>\uD83D\uDC48", "UID_" + uid);
@@ -50,6 +50,11 @@ public class LogoutController {
         }
         wxPushService.wxPush("您已成功取消自动打卡！请您到今日校园app手动打卡，欢迎再次使用~ " + "\n" + "\uD83D\uDC49<a href=\"" + url + "\">点击再次使用自动打卡功能</a>\uD83D\uDC48", "UID_" + uid);
         return "logout";
+    }
+
+    @GetMapping("/location")
+    public String location() {
+        return "location";
     }
 
 }

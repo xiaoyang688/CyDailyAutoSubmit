@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import wiki.zimo.wiseduunifiedloginapi.dto.User;
 import wiki.zimo.wiseduunifiedloginapi.helper.AESUtil;
 import wiki.zimo.wiseduunifiedloginapi.service.UserService;
@@ -28,9 +29,8 @@ public class LoginController {
     private WxPushService wxPushService;
 
 
-    @GetMapping("/login/{id}")
-    public String login(@PathVariable(name = "id") String uid, Model model) {
-
+    @RequestMapping("/login")
+    public String login(@RequestParam(name = "uid", required = false) String uid, Model model) {
         Map<String, String> userInfo = wxPushService.getHeadImg(uid);
         model.addAttribute("headImg", userInfo.get("headImg"));
         model.addAttribute("nickName", userInfo.get("nickName"));

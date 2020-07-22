@@ -14,9 +14,9 @@ public class User implements Serializable {
     @Id
     private String username;
     private String password;
-    private String email;
     private String uid;
     private String realName;
+    private String address;
 
     public String getRealName() {
         return realName;
@@ -50,12 +50,12 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
+    public String getAddress() {
+        return address;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     @Override
@@ -63,8 +63,9 @@ public class User implements Serializable {
         return "User{" +
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
                 ", uid='" + uid + '\'' +
+                ", realName='" + realName + '\'' +
+                ", address='" + address + '\'' +
                 '}';
     }
 }

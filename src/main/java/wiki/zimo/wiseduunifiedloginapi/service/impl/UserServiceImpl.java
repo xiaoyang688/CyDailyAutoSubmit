@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wiki.zimo.wiseduunifiedloginapi.dao.UserMapper;
 import wiki.zimo.wiseduunifiedloginapi.dto.User;
+import wiki.zimo.wiseduunifiedloginapi.helper.WeChatUtil;
 import wiki.zimo.wiseduunifiedloginapi.service.AutoSubmitService;
 import wiki.zimo.wiseduunifiedloginapi.service.UserService;
 
@@ -65,6 +66,22 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public String getAddress(String longitude, String latitude) {
+        String accessTokenUrl = "https://restapi.amap.com/v3/geocode/regeo?output=json&location=LOCATION&key=a75d26219b13abeedfc7cd985453bc61&radius=500";
+        String requestUrl = accessTokenUrl.replace("LOCATION", longitude + "," + latitude);
+        JSONObject jsonObject = WeChatUtil.doGet(requestUrl);
+        String address = null;
+        try {
+            address = jsonObject.getJSONObject("regeocode").getString("formatted_address");
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return "定位失败";
+        }
+        return address;
+
     }
 
     @Override

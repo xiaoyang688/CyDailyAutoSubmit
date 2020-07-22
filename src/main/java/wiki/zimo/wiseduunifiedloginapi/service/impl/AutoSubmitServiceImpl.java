@@ -80,7 +80,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getEmail(), user.getUid());
+                    autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getAddress(), user.getUid());
                 }
             }).start();
         }
@@ -117,7 +117,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     }
 
     @Override
-    public String autoSubmitByWxPush(String username, String password, String email, String uid) {
+    public String autoSubmitByWxPush(String username, String password, String address, String uid) {
 
         String realName = null;
         String url = CALLBACK_URL + "/api/logout/" + uid;
@@ -127,6 +127,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             if (user == null) {
                 return null;
             }
+            //解密
             realName = AESUtil.decrypt(user.getRealName());
             String cookie = null;
             cookie = getCookie(AESUtil.decrypt(username), AESUtil.decrypt(password));
@@ -134,17 +135,23 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             System.out.println(formBaseInfo);
             if (formBaseInfo == null) {
                 sendEmailService.send("cydaily@qq.com", "18024088480@163.com", "【今日校园打卡情况通知】", "打卡时间已过！");
-                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + "不在打卡的有限时间范围内" + "<a href=\"" + url + "\">【点击取消自动打卡】</a>", "UID_" + uid);
+                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + "不在打卡的有限时间范围内" + "<a href=\"" + url + "\">【如有特殊情况请取消自动打卡】</a>", "UID_" + uid);
             }
             String formWid = formBaseInfo.get("formWid");
             String collectorWid = formBaseInfo.get("wid");
             String schoolTaskWid = autoSubmitService.getSchoolTaskWid(collectorWid, cookie);
             JSONArray formField = autoSubmitService.getFormField(formWid, collectorWid, cookie);
-            System.out.println(formBaseInfo);
-            Map<String, String> map = autoSubmitService.submitForm(formWid, collectorWid, ADDRESS, schoolTaskWid, formField, cookie);
+
+            Map<String, String> map = null;
+            if (address != null) {
+                address = AESUtil.decrypt(user.getAddress());
+                map = autoSubmitService.submitForm(formWid, collectorWid, address, schoolTaskWid, formField, cookie);
+            } else {
+                map = autoSubmitService.submitForm(formWid, collectorWid, ADDRESS, schoolTaskWid, formField, cookie);
+            }
             if (uid != null) {
                 sendEmailService.send("cydaily@qq.com", "18024088480@163.com", "【今日校园打卡情况通知】", realName + " " + map.get("message"));
-                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message") + "<a href=\"" + url + "\">【点击取消自动打卡】</a>", "UID_" + uid);
+                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message") + "<a href=\"" + url + "\">【如有特殊情况请取消自动打卡】</a>", "UID_" + uid);
             }
             return "SUCCESS";
         } catch (Exception e) {
