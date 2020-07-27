@@ -44,4 +44,11 @@ public interface UserService {
      * @return
      */
     int deleteByUID(String uid);
+
+    /**
+     * 更新结果
+     * @param username
+     * @param result
+     */
+    void updateResult(String username, String result);
 }

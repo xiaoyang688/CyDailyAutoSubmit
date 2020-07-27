@@ -101,4 +101,11 @@ public class UserServiceImpl implements UserService {
         int result = userMapper.delete(user);
         return result;
     }
+
+    @Override
+    public void updateResult(String username, String result) {
+        User user = userMapper.selectByPrimaryKey(username);
+        user.setResult(result);
+        userMapper.updateByPrimaryKeySelective(user);
+    }
 }

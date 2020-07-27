@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
@@ -57,19 +58,17 @@ public class ApiController {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getAddress(), user.getUid());
+                    String result = autoSubmitService.autoSubmitByWxPush(user.getUsername(), user.getPassword(), user.getAddress(), user.getUid());
+                    System.out.println(result);
                 }
             }).start();
         }
         try {
-            barrier.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (BrokenBarrierException e) {
+            barrier.await(60, TimeUnit.SECONDS);
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return "status";
+        return "SUCCESS";
     }
 
     @PostMapping("/callback")
@@ -102,6 +101,7 @@ public class ApiController {
                 String currentTime = getCurrentTime(new Date());
                 String url = CALLBACK_URL + "/api/logout/" + user.getUid();
                 wxPushService.wxPush("尊敬的" + realName + "同学，您在" + currentTime + "已成功模拟登录今日校园，每天早上9点将进行自动打卡，打卡结果将在本公众号通知" + "\n" + "<a href=\"" + url + "\">【如有特殊情况请取消自动打卡】</a>", "UID_" + user.getUid());
+                wxPushService.wxPush(realName + "同学在" + currentTime + "成功模拟登录", "UID_iAB4BFMt7quFBtA4eFOeQl117fbZ");
             } catch (Exception e) {
                 e.printStackTrace();
                 map.put("message", "fail");

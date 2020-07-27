@@ -17,6 +17,15 @@ public class User implements Serializable {
     private String uid;
     private String realName;
     private String address;
+    private String result;
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
 
     public String getRealName() {
         return realName;

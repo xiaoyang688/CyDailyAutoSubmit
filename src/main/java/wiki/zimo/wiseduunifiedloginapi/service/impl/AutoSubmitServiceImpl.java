@@ -71,6 +71,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
     @Autowired
     private UserMapper userMapper;
 
+
     @Override
     public void autoSubmitAllUser() {
 
@@ -121,7 +122,7 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
 
         String realName = null;
         String url = CALLBACK_URL + "/api/logout/" + uid;
-
+        String shareUrl = CALLBACK_URL + "/share";
         try {
             User user = userService.findByUsername(username);
             if (user == null) {
@@ -134,8 +135,9 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
             Map<String, String> formBaseInfo = autoSubmitService.getFormBaseInfo(cookie);
             System.out.println(formBaseInfo);
             if (formBaseInfo == null) {
-                sendEmailService.send("cydaily@qq.com", "18024088480@163.com", "【今日校园打卡情况通知】", "打卡时间已过！");
-                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + "不在打卡的有限时间范围内" + "<a href=\"" + url + "\">【如有特殊情况请取消自动打卡】</a>", "UID_" + uid);
+                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + "打卡时间已过！" + "\n" + "<a href=\"" + url + "\">【如有特殊情况请取消自动打卡】</a>" + "\n" + "<a href=\"" + shareUrl + "\">【点这里分享给好友吧~】</a>", "UID_" + uid);
+                userService.updateResult(username, "打卡时间已过");
+                return "FAIL";
             }
             String formWid = formBaseInfo.get("formWid");
             String collectorWid = formBaseInfo.get("wid");
@@ -150,8 +152,8 @@ public class AutoSubmitServiceImpl implements AutoSubmitService {
                 map = autoSubmitService.submitForm(formWid, collectorWid, ADDRESS, schoolTaskWid, formField, cookie);
             }
             if (uid != null) {
-                sendEmailService.send("cydaily@qq.com", "18024088480@163.com", "【今日校园打卡情况通知】", realName + " " + map.get("message"));
-                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message") + "<a href=\"" + url + "\">【如有特殊情况请取消自动打卡】</a>", "UID_" + uid);
+                wxPushService.wxPush("尊敬的" + realName + "同学！已在" + getCurrentTime(new Date()) + map.get("message") + "\n" + "<a href=\"" + url + "\">【如有特殊情况请取消自动打卡】</a>" + "\n" + "<a href=\"" + shareUrl + "\">【点这里分享给好友吧~】</a>", "UID_" + uid);
+                userService.updateResult(username, map.get("message"));
             }
             return "SUCCESS";
         } catch (Exception e) {
